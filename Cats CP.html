@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Community Project Feedback</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff0f5;
+      text-align: center;
+    }
+
+    header {
+      background: #ffc0cb;
+      color: #333;
+      padding: 30px;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      margin: 20px auto;
+      padding: 20px;
+      width: 80%;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      background: #ffb6c1;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #ff9eb5;
+    }
+
+    textarea, input {
+      width: 80%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .result {
+      margin-top: 10px;
+      font-size: 1.1em;
+    }
+
+    .message {
+      background: #ffe4e9;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      text-align: left;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  🐱🎓 Community Project Feedback 🎓😺
+</header>
+
+<!-- QUESTIONS -->
+
+<div class="card">
+  <h2>1. Did you like our project?</h2>
+  <button onclick="vote('q1', true)">Yes</button>
+  <button onclick="vote('q1', false)">No</button>
+  <div id="q1" class="result"></div>
+</div>
+
+<div class="card">
+  <h2>2. Was it easy to understand?</h2>
+  <button onclick="vote('q2', true)">Yes</button>
+  <button onclick="vote('q2', false)">No</button>
+  <div id="q2" class="result"></div>
+</div>
+
+<div class="card">
+  <h2>3. Would you support this project?</h2>
+  <button onclick="vote('q3', true)">Yes</button>
+  <button onclick="vote('q3', false)">No</button>
+  <div id="q3" class="result"></div>
+</div>
+
+<!-- FEEDBACK -->
+
+<div class="card">
+  <h2>💬 Leave your feedback</h2>
+
+  <input type="text" id="nameInput" placeholder="Your name">
+  <br>
+  <textarea id="feedbackInput" placeholder="Write your opinion..."></textarea>
+  <br>
+  <button onclick="sendFeedback()">Send</button>
+
+  <div id="feedbackList"></div>
+</div>
+
+<script>
+  let data = {
+    q1: {yes: 0, no: 0},
+    q2: {yes: 0, no: 0},
+    q3: {yes: 0, no: 0}
+  };
+
+  let feedbacks = [];
+
+  window.onload = function() {
+    let savedSurvey = JSON.parse(localStorage.getItem("survey"));
+    let savedFeedback = JSON.parse(localStorage.getItem("feedbacks"));
+
+    if (savedSurvey) data = savedSurvey;
+    if (savedFeedback) feedbacks = savedFeedback;
+
+    updateAll();
+    loadFeedback();
+  };
+
+  // QUESTIONS
+  function vote(q, isYes) {
+    if (isYes) data[q].yes++;
+    else data[q].no++;
+
+    localStorage.setItem("survey", JSON.stringify(data));
+    updateQuestion(q);
+  }
+
+  function updateQuestion(q) {
+    let total = data[q].yes + data[q].no;
+    if (total === 0) return;
+
+    let percent = Math.round((data[q].yes / total) * 100);
+
+    document.getElementById(q).innerText =
+      percent + "% positive responses 👍";
+  }
+
+  function updateAll() {
+    updateQuestion("q1");
+    updateQuestion("q2");
+    updateQuestion("q3");
+  }
+
+  // FEEDBACK
+  function sendFeedback() {
+    let name = document.getElementById("nameInput").value;
+    let text = document.getElementById("feedbackInput").value;
+
+    if (name.trim() === "" || text.trim() === "") {
+      alert("Please enter your name and feedback!");
+      return;
+    }
+
+    let time = new Date().toLocaleString();
+
+    let entry = {
+      name: name,
+      text: text,
+      time: time
+    };
+
+    feedbacks.push(entry);
+    localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+
+    addFeedback(entry);
+
+    document.getElementById("feedbackInput").value = "";
+  }
+
+  function loadFeedback() {
+    feedbacks.forEach(f => addFeedback(f));
+  }
+
+  function addFeedback(f) {
+    let div = document.createElement("div");
+    div.className = "message";
+
+    div.innerHTML = `
+      <b>${f.name}</b><br>
+      ${f.text}
+      <div class="meta">🕒 ${f.time}</div>
+    `;
+
+    document.getElementById("feedbackList").appendChild(div);
+  }
+</script>
+
+</body>
+</html>
